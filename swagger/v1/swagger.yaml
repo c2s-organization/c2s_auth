@@ -1,86 +1,77 @@
+---
 openapi: 3.0.1
 info:
   title: API V1
   version: v1
 paths:
-  /register:
+  "/register":
     post:
-      tags:
-        - Authentication
       summary: Registers a new user
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRegistration'
+      tags:
+      - Authentication
+      parameters: []
       responses:
         '201':
           description: User registered successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
         '422':
           description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /login:
-    post:
-      tags:
-        - Authentication
-      summary: Logs in a user
-      consumes:
-        - application/json
-      produces:
-        - application/json
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserLogin'
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+                password_confirmation:
+                  type: string
+                  example: password123
+              required:
+              - email
+              - password
+              - password_confirmation
+  "/login":
+    post:
+      summary: Logs in a user
+      tags:
+      - Authentication
+      parameters: []
       responses:
         '200':
           description: User logged in successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /validate_token:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+              required:
+              - email
+              - password
+  "/validate_token":
     get:
-      tags:
-        - Authentication
       summary: Validates a JWT token
+      tags:
+      - Authentication
       security:
-        - BearerAuth: []
-      produces:
-        - application/json
+      - BearerAuth: []
       responses:
         '200':
           description: Token is valid
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessMessage'
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     BearerAuth:
@@ -90,6 +81,10 @@ components:
   schemas:
     UserRegistration:
       type: object
+      required:
+      - email
+      - password
+      - password_confirmation
       properties:
         email:
           type: string
@@ -100,12 +95,11 @@ components:
         password_confirmation:
           type: string
           example: password123
-      required:
-        - email
-        - password
-        - password_confirmation
     UserLogin:
       type: object
+      required:
+      - email
+      - password
       properties:
         email:
           type: string
@@ -113,17 +107,14 @@ components:
         password:
           type: string
           example: password123
-      required:
-        - email
-        - password
     AuthToken:
       type: object
       properties:
         token:
           type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6...
       required:
-        - token
+      - token
     ErrorResponse:
       type: object
       properties:
@@ -132,9 +123,9 @@ components:
           items:
             type: string
           example:
-            - Invalid email or password
+          - Invalid email or password
       required:
-        - errors
+      - errors
     SuccessMessage:
       type: object
       properties:
@@ -142,4 +133,4 @@ components:
           type: string
           example: Token is valid
       required:
-        - message
+      - message
