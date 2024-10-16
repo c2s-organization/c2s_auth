@@ -55,7 +55,7 @@ RSpec.describe 'Auth', type: :request do
   end
 
   describe 'GET /validate_token' do
-    let(:valid_token) { JsonWebToken.encode(user_id: user.id) }
+    let(:valid_token) { WebTokenService.encode(user_id: user.id) }
 
     context 'quando o token é válido' do
       it 'retorna uma mensagem de sucesso' do
