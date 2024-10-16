@@ -2,22 +2,20 @@ class AuthController < ApplicationController
   before_action :authorize_request, except: [:login, :register]
 
   def register
-    @user = User.new(user_params)
-    if @user.save
-      token = WebTokenService.encode(user_id: @user.id)
-      render json: { token: token }, status: :created
+    user = User.new(user_params)
+    if user.save
+      render_token(user, :created)
     else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      render_errors(user.errors.full_messages, :unprocessable_entity)
     end
   end
 
   def login
-    @user = User.find_by(email: params[:email])
-    if @user&.authenticate(params[:password])
-      token = WebTokenService.encode(user_id: @user.id)
-      render json: { token: token }, status: :ok
+    user = User.find_by(email: params[:email])
+    if user&.authenticate(params[:password])
+      render_token(user, :ok)
     else
-      render json: { errors: ['Invalid email or password'] }, status: :unauthorized
+      render_errors(['Invalid email or password'], :unauthorized)
     end
   end
 
@@ -33,9 +31,22 @@ class AuthController < ApplicationController
 
   def authorize_request
     header = request.headers['Authorization']
-    token = header.split(' ').last if header
-    decoded = WebTokenService.decode(token)
-    @current_user = User.find(decoded[:user_id]) if decoded
-    render json: { errors: ['Unauthorized'] }, status: :unauthorized unless @current_user
+    return render_errors(['Unauthorized'], :unauthorized) unless header
+
+    token = header.split(' ').last
+    decoded_token = WebTokenService.decode(token)
+    return render_errors(['Unauthorized'], :unauthorized) unless decoded_token
+
+    @current_user = User.find_by(id: decoded_token[:user_id])
+    render_errors(['Unauthorized'], :unauthorized) unless @current_user
+  end
+
+  def render_token(user, status)
+    token = WebTokenService.encode(user_id: user.id)
+    render json: { token: token }, status: status
+  end
+
+  def render_errors(errors, status)
+    render json: { errors: errors }, status: status
   end
 end
