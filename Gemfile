@@ -25,6 +25,7 @@ gem "puma", "~> 5.0"
 gem 'bcrypt', '~> 3.1.7'
 gem 'jwt', '~> 2.2'
 gem 'dotenv-rails'
+gem 'shoulda-matchers'
 
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

@@ -6,5 +6,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
+
+    remove_index :users, :email if index_exists?(:users, :email)
+    add_index :users, 'LOWER(email)', unique: true
   end
 end
