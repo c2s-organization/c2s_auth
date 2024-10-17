@@ -4,6 +4,7 @@ class AuthController < ApplicationController
   def register
     user = User.new(user_params)
     if user.save
+      NotifyJob.perform_later("User created", "User #{user.email} was created successfully")
       render_token(user, :created)
     else
       render_errors(user.errors.full_messages, :unprocessable_entity)
@@ -13,6 +14,7 @@ class AuthController < ApplicationController
   def login
     user = User.find_by(email: params[:email])
     if user&.authenticate(params[:password])
+      NotifyJob.perform_later("User logged in", "User #{user.email} was logged in successfully")
       render_token(user, :ok)
     else
       render_errors(['Invalid email or password'], :unauthorized)

@@ -26,6 +26,7 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'jwt', '~> 2.2'
 gem 'dotenv-rails'
 gem 'shoulda-matchers'
+gem 'httparty'
 
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
