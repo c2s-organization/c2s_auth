@@ -1,8 +1,12 @@
 # Usar uma imagem base oficial do Ruby
 FROM ruby:2.7.5
 
-# Instalar dependências do sistema
-RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
+RUN apt-get update -qq && apt-get install -y curl build-essential libxml2-dev libxslt1-dev
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update
+RUN apt-get install yarn -y
 
 # Configurar o diretório de trabalho dentro do container
 WORKDIR /app
@@ -16,6 +20,10 @@ RUN bundle install
 
 # Copiar o código da aplicação
 COPY . /app
+
+COPY entrypoint.sh /usr/bin/
+
+RUN chmod +x /usr/bin/entrypoint.sh
 
 # Expor a porta que o Rails utilizará
 EXPOSE 3001
